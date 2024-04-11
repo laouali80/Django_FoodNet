@@ -2,9 +2,9 @@ from django import template
 
 register = template.Library()
 
-# @register.filter
+@register.filter()
 def naira(value):
     """Format value as Naira."""
-    return f"${value:,.2f}"
+    return f"₦{value:,.2f}"
 
-register.filter('usd',naira)
+# register.filter('naira',naira)
