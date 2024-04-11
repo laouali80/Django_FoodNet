@@ -1,0 +1,40 @@
+{% extends 'foodnet/layout.html' %} 
+
+{% load static %}
+
+{% block title %} Login {% endblock title %} 
+
+{% block content %}
+<body class="text-center">
+  <div class="container mt-4">
+    <form method="POST" class="form-signin" style="color: white">
+      <!-- againt a cross site Request Forgery (CSRF) -->
+      {% csrf_token %}
+      <h1 class="h3 mb-3 font-weight-normal">Please Login</h1>
+      
+      <br />
+            {% for field in form %}
+                <div class="form-group">
+
+                    {{ field.label_tag}}
+                    <br>
+                    {{ field }}
+
+                </div>
+            {% endfor %}
+      <br />
+
+      <div class="checkbox mb-3">
+        <h6>Do not have an account?</h6>
+        <a
+          class="btn btn-sm btn-secondary"
+          href="{% url 'register' %}"
+          >Register</a
+        >
+      </div>
+
+      <input type="submit" class='btn btn-lg btn-block btn-primary' value="Log In">
+    </form>
+  </div>
+</body>
+{% endblock content %}

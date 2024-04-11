@@ -1,0 +1,115 @@
+{% extends 'foodnet/layout.html' %} 
+{% load static %}
+
+{% block title %} Checkout {% endblock title %} 
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="box-element bg-dark" id="form-wrapper">
+                    <form id="form">
+                        <div id="user-info">
+                            <div class="form-field">
+                                <input required class="form-control" type="name" placeholder="Name...">
+                            </div>
+                            <div class="form-field">
+                                <input required class="form-control" type="email" placeholder="Email...">
+                            </div>
+                        </div>
+    
+
+                        <div id="shipping-info">
+                            <hr>
+                            <p>Shipping Information:</p>
+                            <hr>
+                            <div class="form-field">
+                                <input class="form-control" type="text" name="address" placeholder="Address...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <select name="state" class="form-control">
+                                  <option selected>Choose...</option>
+                                  <option>Adamawa</option>
+                                </select>
+                            </div>
+                    
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <select name="city" class="form-control">
+                                    <option selected>Choose...</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <input class="form-control" type="text" name="zipcode" placeholder="Zip code...">
+                            </div>
+                            <div class="form-field">
+                                <input class="form-control" type="text" name="country" placeholder="Country...">
+                            </div>
+                        </div>
+
+                        <div id="shipping-method">
+                            <hr>
+                            <p>Shipping Method:</p>
+                            <hr>
+
+                            <div class="form-check" style="font-size: 18px;">
+                                <input class="form-check-input" type="radio" name="method" id="pickUp" value="pickUp" checked>
+                                <label class="form-check-label" for="pickUp">
+                                    Pick Up  <strong>Free</strong>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="method" id="delivery" value="delivery">
+                                <label class="form-check-label" for="delivery">
+                                    Delivery <strong>+ ₦500</strong>
+                                </label>
+                            </div>
+                        </div>
+    
+                        <hr>
+                        <input id="form-button" class="btn btn-success btn-block" type="submit" value="Place Order">
+                    </form>
+                </div>
+
+            </div>
+    
+            <div class="col-lg-6">
+                 <div class="box-element bg-dark">
+                    <table class="table table-dark">
+                        
+                    <a class="btn btn-outline-warning" href="{% url 'cart' %}">&#x2190; Back to Cart</a>                
+                        
+                    <hr>
+                    <h3>Order Summary</h3>
+                    <hr>
+    
+                    <div class="cart-row">
+                        <div style="flex: 2;">
+                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" >
+                        </div>
+                        <div style="flex: 2;">
+                           <p>Burger</p> 
+                        </div>
+                        <div style="flex: 1;">
+                            <p>₦200.00</p>
+                        </div>
+                        <div style="flex: 1;">
+                            <p>x2</p>
+                        </div>
+                    </div>
+                    <h5>Items: 2</h5>
+                    <h5>Total: ₦200.00</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock content %}
+
+{% block script %}
+    <script src="{% static 'foodnet/js/market.js' %}"></script>
+{% endblock %}

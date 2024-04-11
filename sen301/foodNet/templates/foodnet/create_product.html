@@ -1,0 +1,65 @@
+{% extends 'foodnet/layout.html' %} 
+{% load static %}
+
+{% block title %} Create New Product {% endblock title %} 
+
+{% block content %}
+
+    <div class="container mt-2">
+        <div class="container w-50 mb-4">
+            <div class="bg-dark p-3">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <!-- tis form.hidden_tag() add csrf token against attacks -->
+                    {% csrf_token %}
+    
+                    <fieldset class="Form-group">
+                        <legend class="border-bottom mb-4">Creat New Product</legend>
+                        <div class="form-group">
+                            <label class='form-control-label' for="title">Title*</label>
+        
+                            <input type="text" required class='form-control' name="title" autocomplete='off' placeholder="Title/Name...">
+                                
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="More information about the product..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class='form-control-label' for="price">Price*</label>
+        
+                            <input type="number" required class='form-control' id="price" name="price" min="1" placeholder="Price...">
+                                
+                        </div>
+                        <div class="form-group">
+    
+                            <label class='form-control-label' for="category">Category*</label>
+                            <select class='form-control' id="category" name="category">
+                                <option selected disabled>Choose...</option>
+                                
+                                <option value="{{ category.id }}">Food</option>
+                                
+                            </select>
+                                
+                        </div>
+                        <div class="form-group">
+                            
+                            <label for="image">Image</label>
+                            <input type="file" class="form-control-file" id="image" name="image">
+                                
+                        </div>
+                        
+                    </fieldset>
+                    <div class="form-group">
+                        <input type="submit" class='btn btn-outline-warning' value="Create">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+{% endblock content %}
+
+{% block script %}
+    <!-- <script src="{% static 'foodnet/js/view.js' %}"></script> -->
+{% endblock %}
