@@ -5,19 +5,32 @@
 
 {% block content %}
 
+    </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                <strong>{{ message.tags | capfirst }}!</strong> {{message}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div>
+
     <div class="container mt-2">
         <div class="container w-50 mb-4">
             <div class="bg-dark p-3">
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <!-- tis form.hidden_tag() add csrf token against attacks -->
+                <form method="POST" action="{% url 'create_product' %}" enctype="multipart/form-data">
+                    <!-- add csrf token against attacks -->
                     {% csrf_token %}
     
                     <fieldset class="Form-group">
                         <legend class="border-bottom mb-4">Creat New Product</legend>
                         <div class="form-group">
-                            <label class='form-control-label' for="title">Title*</label>
+                            <label class='form-control-label' for="title">Name*</label>
         
-                            <input type="text" required class='form-control' name="title" autocomplete='off' placeholder="Title/Name...">
+                            <input type="text" required class='form-control' name="name" autocomplete='off' placeholder="Name...">
                                 
                         </div>
                         <div class="form-group">
@@ -35,9 +48,9 @@
                             <label class='form-control-label' for="category">Category*</label>
                             <select class='form-control' id="category" name="category">
                                 <option selected disabled>Choose...</option>
-                                
-                                <option value="{{ category.id }}">Food</option>
-                                
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category }}</option>
+                                {% endfor %}
                             </select>
                                 
                         </div>

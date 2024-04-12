@@ -1,5 +1,6 @@
 {% extends 'foodnet/layout.html' %} 
 {% load static %}
+{% load my_filter %}
 
 {% block title %} Burger King {% endblock title %} 
 
@@ -9,23 +10,22 @@
       
       <div class="container">
         <div class="d-flex align-items-center justify-content-center bg-dark" style="height: 400px;">
-          <img src="{% static 'foodnet/assets/default.jpg' %}" class="rounded-circle" style="width: 400px; height: 400px; object-fit: cover;" />
+          <img src="{{ product.img.url }}" class="rounded-circle" style="width: 400px; height: 400px; object-fit: cover;" />
         </div>
       </div>
 
       <div class="d-flex align-items-center justify-content-center">
-        <h1>Burger King</h1>
+        <h1>{{ product.name.title }}</h1>
       </div>
       <div class="d-flex align-items-center justify-content-center">
-        <h2>₦1000</h2>
+        <h2>{{ product.price|naira }}</h2>
       </div>
       
       <hr>
       
       <div class="d-flex flex-column p-2">
         <h3>Description:</h3>
-        <p style="font-size: 20px;">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsum eos nemo nobis. Delectus libero nobis commodi, eveniet aut at vero! Nemo, fugiat dolor quo aspernatur delectus sit expedita maiores ea velit adipisci, rem maxime laborum alias voluptates sint. Consequuntur magnam expedita tenetur, esse, fugiat cumque quaerat alias perspiciatis eaque molestias ut ducimus a sunt possimus! Placeat earum nam quaerat repellendus, tempore, delectus adipisci dolor in et totam perspiciatis rem illo amet quam debitis blanditiis accusamus eius. Eligendi repellendus, laboriosam, fuga doloremque aliquid corporis pariatur iure at praesentium nobis fugiat? Rem ab nesciunt veritatis laborum non iure sint, commodi illum perferendis earum. Sapiente numquam debitis alias sunt odit ea tenetur modi non eos nisi, labore iusto suscipit quisquam aliquid reprehenderit et beatae accusantium corrupti in! Eveniet corrupti delectus voluptatum assumenda odio nam sit in nisi distinctio, reprehenderit, beatae ea consequatur perferendis ad iste accusantium qui debitis deleniti placeat illo nulla facere reiciendis. Sed id dolore ad consequuntur expedita ex iure explicabo quae dolorum suscipit quas ipsam, eligendi ipsa quidem incidunt, numquam deserunt aliquid obcaecati. 
-          Sit ad aut nihil impedit dolore, aspernatur blanditiis ratione incidunt qui at error sunt voluptas quidem corrupti doloremque perspiciatis deserunt animi, rerum nemo quia id fuga adipisci.</p>
+        <p style="font-size: 20px;">{{ product.description }}</p>
       </div>
       
       <hr>
@@ -34,10 +34,10 @@
         <h3>Details:</h3>
 
         <ul style="font-size: 18px;">
-          <li>Category: Food </li>
-          <li>Vendor: @mamaCakeSweet</li>
-          <li>Telephone: 07041444411</li>
-          <li>Email: mamaCake@gmail.com</li>
+          <li>Category: {{ product.category }} </li>
+          <li>Vendor: {{ product.vendor.username }}</li>
+          <li>Telephone: {{ product.vendor.phone_number }}</li>
+          <li>Email: {{ product.vendor.email }}</li>
         </ul>
       </div>
       

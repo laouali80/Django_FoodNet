@@ -6,7 +6,21 @@
 
 {% block content %}
 
-  
+    <!-- messages -->
+    </div>
+      {% if messages %}
+          {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                  <strong>{{ message.tags | capfirst }}!</strong> {{message}}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+          {% endfor %}
+      {% endif %}
+    <div>
+      
+
     <div class="container mt-2">
       <h2>Available Products on the Market</h2>
       <p>Click on one of the items to start buying</p>
@@ -15,7 +29,7 @@
     <div class="container">
 
       <div class="row row-cols-3">
-
+        <!-- products -->
         {% for product in products %}
 
           <div class="col mb-2" id="cart">
@@ -37,7 +51,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                           </svg>
                         </button>
-                        <a class="btn btn-outline-success ml-2" href="{% url 'view_product' %}">View</a>
+                        <a class="btn btn-outline-success ml-2" href="{% url 'view_product' product.id %}">View</a>
                       </div>
 
                       <!-- <h4 class="d-block text-truncate" style="display: incline-block; float: right; max-width: 100px;">{{ product.price |naira }}</h4> -->

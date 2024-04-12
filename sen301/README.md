@@ -4,6 +4,16 @@ foodnet1234
 
 unplash : free pictures
 
+https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
+name = request.FILES[filename].name
+
+file = request.FILES['filename']
+file.name           # Gives name
+file.content_type   # Gives Content type text/html etc
+file.size           # Gives file's size in byte
+file.read()         # Reads file
+
+
 test
 test1234
 

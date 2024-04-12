@@ -6,8 +6,22 @@
 
 {% block content %}
 <body class="text-center">
+
+  </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                <strong>{{ message.tags | capfirst }}!</strong> {{message}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+  <div>
+
   <div class="container mt-4">
-    <form method="POST" class="form-signin" style="color: white">
+    <form method="POST" action="{% url 'login' %}" class="form-signin" style="color: white">
       <!-- againt a cross site Request Forgery (CSRF) -->
       {% csrf_token %}
       <h1 class="h3 mb-3 font-weight-normal">Please Login</h1>

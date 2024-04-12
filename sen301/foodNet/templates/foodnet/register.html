@@ -7,7 +7,7 @@
 {% block content %}
 <body class="text-center">
   <div class="container mt-4">
-    <form method="POST" class="form-register" style="color: white">
+    <form method="POST" action="{% url 'register' %}" class="form-register" style="color: white">
       <!-- againt a cross site Request Forgery (CSRF) -->
       {% csrf_token %}
 
@@ -92,7 +92,7 @@
             <label for="city">City</label>
             <select name="city" class="form-control">
               <option selected>Choose...</option>
-              <option>...</option>
+              <option>Yola</option>
             </select>
           </div>
           
