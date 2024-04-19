@@ -21,28 +21,28 @@ function profile_view(view){
         sells_view.style.display = "none";
         orders_view.style.display = "none";
 
-        console.log('info')
+        // console.log('info')
     }else if(view === 'products'){
         info_view.style.display = "none";
         products_view.style.display = "block";
         sells_view.style.display = "none";
         orders_view.style.display = "none";
 
-        console.log('products')
+        // console.log('products')
     }else if(view === 'sells'){
         info_view.style.display = "none";
         products_view.style.display = "none";
         sells_view.style.display = "block";
         orders_view.style.display = "none";
 
-        console.log('sells')
+        // console.log('sells')
     }else if(view === 'orders'){
         info_view.style.display = "none";
         products_view.style.display = "none";
         sells_view.style.display = "none";
         orders_view.style.display = "block";
 
-        console.log('orders')
+        // console.log('orders')
     }
     
     

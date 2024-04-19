@@ -80,3 +80,12 @@ li > span:hover{
     background-color: #ffc107;
     border-color: #ffc107;
 } */
+
+#own-product {
+    margin:5px;
+    padding:5px;
+    width: inherit;
+    height: 330px;
+    overflow: auto;
+    text-align: justify;
+}

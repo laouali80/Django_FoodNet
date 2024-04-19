@@ -21,16 +21,35 @@
     <div>
       
 
-    <div class="container mt-2">
-      <h2>Available Products on the Market</h2>
-      <p>Click on one of the items to start buying</p>
+    <div class="container mt-2 d-flex justify-content-between">
+      <div>
+        <h2>Available Products on the Market</h2>
+        <p>Click on one of the items to start buying</p>
+      </div>
+      <div>
+        <form class="form-inline" action="{% url 'search' %}" method="GET">
+          {% csrf_token %}
+          <div class="form-group">
+              <label for="category">Search by Category: </label>
+              <select id="category" name="category" class="form-control ml-lg-2 mr-lg-2">
+                  <option selected value="all">All</option>
+                  {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+      
       <br />
+      
     </div>
     <div class="container">
 
       <div class="row row-cols-3">
         <!-- products -->
-        {% for product in products %}
+        {% for product in products.object_list %}
 
           <div class="col mb-2" id="cart">
             <div style="margin-bottom: 5px" class="card text-center bg-dark">
@@ -46,7 +65,7 @@
                     <div class="d-flex justify-content-between align-items-center">
 
                       <div class="d-flex justify-content-between">
-                        <button class="btn btn-outline-warning">
+                        <button data-product="{{ product.id }}" data-action="add" class="btn btn-outline-warning update-cart">
                           Add cart <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" height="30" width="30" stroke="black">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                           </svg>
@@ -64,18 +83,27 @@
             </div>
           </div>
 
+        {% empty %}
+        <div>
+          <h1 style="color: white; font-weight: bold">No Product you can buy in Market</h1>
+        </div>
         {% endfor %}
-
-      
-        
-       
-            <!-- <h1 style="color: white; font-weight: bold">No Product on the Market</h1> -->
         
       </div>
+
+      
+        {% for num in paginator.page_range %}
+          {% if products.number == num %}
+            
+            <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+
+          {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+            
+            <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+          
+          {% endif %}
+        {% endfor %}
+      
     </div>
 
 {% endblock content %}
-
-{% block script %}
-    <script src="{% static 'foodnet/js/market.js' %}"></script>
-{% endblock %}

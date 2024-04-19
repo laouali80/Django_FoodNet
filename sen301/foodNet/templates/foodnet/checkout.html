@@ -1,55 +1,67 @@
 {% extends 'foodnet/layout.html' %} 
 {% load static %}
+{% load my_filter %}
 
 {% block title %} Checkout {% endblock title %} 
 
 {% block content %}
+
+    <!-- messages -->
+    </div>
+        <div class="alert alert-dismissible fade show" id="message" style="display: none;">
+            <strong>{{ message.tags | capfirst }}!</strong> {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <div>
+
     <div class="container">
         <div class="row">
             <div class="col-lg-6">
                 <div class="box-element bg-dark" id="form-wrapper">
                     <form id="form">
-                        <div id="user-info">
-                            <div class="form-field">
-                                <input required class="form-control" type="name" placeholder="Name...">
+
+                        <div id="shipping-info" style="display: none;">
+                            <div id="user-info">
+                                <div class="form-field">
+                                    <input class="form-control" type="name" name="name" value="{{ request.user.first_name }}" placeholder="Name...">
+                                </div>
+                                <div class="form-field">
+                                    <input class="form-control" type="email" name="email" value="{{ request.user.email }}" placeholder="Email...">
+                                </div>
+                                <div class="form-field">
+                                    <input class="form-control" type="number" name="phone_number" value="{{ request.user.phone_number }}" placeholder="Phone Number...">
+                                </div>
                             </div>
-                            <div class="form-field">
-                                <input required class="form-control" type="email" placeholder="Email...">
-                            </div>
-                        </div>
+        
     
-
-                        <div id="shipping-info">
-                            <hr>
-                            <p>Shipping Information:</p>
-                            <hr>
-                            <div class="form-field">
-                                <input class="form-control" type="text" name="address" placeholder="Address...">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="state">State</label>
-                                <select name="state" class="form-control">
-                                  <option selected>Choose...</option>
-                                  <option>Adamawa</option>
-                                </select>
-                            </div>
-                    
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <select name="city" class="form-control">
-                                    <option selected>Choose...</option>
-                                    <option>...</option>
-                                </select>
-                            </div>
-
-                            <div class="form-field">
-                                <input class="form-control" type="text" name="zipcode" placeholder="Zip code...">
-                            </div>
-                            <div class="form-field">
-                                <input class="form-control" type="text" name="country" placeholder="Country...">
+                            <div>
+                                <hr>
+                                <p>Shipping Information:</p>
+                                <hr>
+                                <div class="form-field">
+                                    <input class="form-control" type="text" name="address" value="{{ request.user.address1 }}" placeholder="Address...">
+                                </div>
+    
+                                <div class="form-field">
+                                    <select name="state" class="form-control">
+                                      <option selected value="{{ request.user.state }}">{{ request.user.state }}</option>
+                                    </select>
+                                </div>
+                        
+                                <div class="form-field">
+                                    <select name="city" class="form-control">
+                                        <option selected value="{{ request.user.city }}">{{ request.user.city }}</option>
+                                    </select>
+                                </div>
+    
+                                <div class="form-field">
+                                    <input class="form-control" type="text" name="zipcode" value="{{ request.user.zipcode }}" placeholder="Zip code...">
+                                </div>
                             </div>
                         </div>
+                        
 
                         <div id="shipping-method">
                             <hr>
@@ -86,30 +98,34 @@
                     <hr>
                     <h3>Order Summary</h3>
                     <hr>
-    
+                    {% for item in items %}
                     <div class="cart-row">
-                        <div style="flex: 2;">
-                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" >
+                        <div style="flex: 1;">
+                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{{ item.product.img.url }}" >
                         </div>
                         <div style="flex: 2;">
-                           <p>Burger</p> 
+                           <p>{{ item.product.name }}</p> 
+                        </div>
+                        <div style="flex: 2;">
+                            <p class="d-block text-truncate" style="max-width: 200px;">{{ item.product.price|naira }}</p>
                         </div>
                         <div style="flex: 1;">
-                            <p>₦200.00</p>
-                        </div>
-                        <div style="flex: 1;">
-                            <p>x2</p>
+                            <p>x{{ item.quantity }}</p>
                         </div>
                     </div>
-                    <h5>Items: 2</h5>
-                    <h5>Total: ₦200.00</h5>
+                    {% endfor %}
+
+                    <h5>Items: {{ order.get_cart_items }}</h5>
+                    <h5 id="order-total">Total: {{ order.get_cart_total|naira }}</h5>
                 </div>
             </div>
         </div>
     </div>
     
+
+    <script type="text/javascript">
+        let total = "{{order.get_cart_total}}";
+        
+    </script>
 {% endblock content %}
 
-{% block script %}
-    <script src="{% static 'foodnet/js/market.js' %}"></script>
-{% endblock %}

@@ -1,16 +1,27 @@
 {% extends 'foodnet/layout.html' %} 
 {% load static %}
+{% load my_filter %}
+
 
 {% block title %} Cart {% endblock title %} 
 
 {% block content %}
 
   
-    <!-- <div class="container mt-2">
-      <h2>Available Products on the Market</h2>
-      <p>Click on one of the items to start buying</p>
-      <br />
-    </div> -->
+    <!-- messages -->
+    </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    <strong>{{ message.tags | capfirst }}!</strong> {{message}}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    <div>
+
     <div class="container">
 
       <div class="row">
@@ -25,10 +36,10 @@
                 </tr>
                 <tr>
                     <th>
-                        <h5>Items: <strong>3</strong> </h5>
+                        <h5>Items: <strong>{{ order.get_cart_items }}</strong> </h5>
                     </th>
                     <th>
-                        <h5>Total: <strong>₦43</strong> </h5>
+                        <h5>Total: <strong>{{ order.get_cart_total|naira }}</strong> </h5>
                     </th>
                     <th>
                         <a style="float: right; margin: 5px;" class="btn btn-success" href="{% url 'checkout'%}">Checkout</a>
@@ -49,108 +60,23 @@
                 </thead>
             
                 <tbody>
-                            
+                    {% for item in items %}        
                     <tr>
                         <td>
-                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" > Burger King
+                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{{ item.product.img.url }}" > {{ item.product.name }}
                         </td>
-                        <td>₦3,000</td>
+                        <td>{{ item.product.price|naira }}</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <p class="quantity">2</p>
-                                <div class="quantity">
-                                    <button id="increase" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
-                                            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                                          </svg>
-                                    </button>
-    
-                                    <button id="decrease" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                          </svg>
-                                    </button>
-                                </div>
+                                <button data-product="{{ item.product.id }}" data-action="remove" class="btn btn-outline-danger update-cart">-</button>
+                                <span class="mx-2"style="text-align: center; font-size: 18px; font-weight: 500;">{{ item.quantity }}</span>
+                                <button data-product="{{ item.product.id }}" data-action="add" class="btn btn-outline-success update-cart">+</button>
                             </div>
                         </td>
-                        <td>₦3,000</td>
+                        <td>{{ item.get_total|naira }}</td>
                     </tr>
-                    <tr>
-                        <td>
-                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" > Burger King
-                        </td>
-                        <td>₦3,000</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <p class="quantity">2</p>
-                                <div class="quantity">
-                                    <button id="increase" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
-                                            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                                          </svg>
-                                    </button>
-    
-                                    <button id="decrease" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                          </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                        <td>₦3,000</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" > Burger King
-                        </td>
-                        <td>₦3,000</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <p class="quantity">2</p>
-                                <div class="quantity">
-                                    <button id="increase" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
-                                            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                                          </svg>
-                                    </button>
-    
-                                    <button id="decrease" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                          </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                        <td>₦3,000</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <img class="rounded-circle" style="width: 60px; height: 60px;" src="{% static 'foodnet/assets/default.jpg' %}" > Burger King
-                        </td>
-                        <td>₦3,000</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <p class="quantity">2</p>
-                                <div class="quantity">
-                                    <button id="increase" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
-                                            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                                          </svg>
-                                    </button>
-    
-                                    <button id="decrease" class="ch-quantity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                          </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                        <td>₦3,000</td>
-                    </tr>
-                
+                    {% endfor %}
+                    
                 </tbody>
             </table>
         </div>
@@ -160,6 +86,3 @@
 
 {% endblock content %}
 
-{% block script %}
-    <script src="{% static 'foodnet/js/market.js' %}"></script>
-{% endblock %}

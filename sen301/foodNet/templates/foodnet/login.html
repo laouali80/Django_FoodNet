@@ -24,6 +24,8 @@
     <form method="POST" action="{% url 'login' %}" class="form-signin" style="color: white">
       <!-- againt a cross site Request Forgery (CSRF) -->
       {% csrf_token %}
+
+      <img style="width: 680px; height: 200px;" src="{% static 'foodnet/assets/foodnet.png' %}" >
       <h1 class="h3 mb-3 font-weight-normal">Please Login</h1>
       
       <br />

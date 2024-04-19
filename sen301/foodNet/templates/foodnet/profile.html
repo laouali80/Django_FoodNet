@@ -1,13 +1,14 @@
 {% extends 'foodnet/layout.html' %} 
 {% load static %}
+{% load my_filter %}
 
 {% block title %} Profile {% endblock title %} 
 
 {% block content %}
 
-    <div class="container d-flex justify-content-around align-items-center mt-2 border border-success" style="height: 600px;">
+    <div class="container d-flex justify-content-around align-items-center mt-2 mb-4" style="height: 600px;">
 
-      <div class="d-inline-flex border border-success" style="height: 400px; width: 400px;">
+      <div class="d-inline-flex" style="height: 400px; width: 400px;">
         <div class="d-flex flex-column justify-content-center align-items-center bg-dark w-100">
           <h1><strong>Profile</strong></h1>
               <div class="flex-column">
@@ -47,9 +48,9 @@
         
       </div>
       
-      <div class="d-inline-flex border border-danger" style="height: 400px; width: 600px;">
+      <div class="d-inline-flex" style="height: 400px; width: 600px;">
 
-        <div class="container bg-dark p-2 border border-info" style="height: 650px;" id="profile-info-div">
+        <div class="container bg-dark p-2" style="height: 650px;" id="profile-info-div">
           
           <form method="POST" action="">
             <!-- tis form.hidden_tag() add csrf token against attacks -->
@@ -62,29 +63,29 @@
 
                   <div class="form-group col-md-4">
                     <label for="first_name">First Name</label>
-                    <input type="text" class="form-control" name="first_name" autocomplete='off' value="{{ profile.first_name }}">
+                    <input type="text" class="form-control" name="first_name" autocomplete='off' disabled value="{{ profile.first_name }}">
                   </div>
 
                   <div class="form-group col-md-4">
                     <label for="middle_name">Middle Name</label>
-                    <input type="text" class="form-control" name="middle_name" autocomplete='off' value="{{ profile.middle_name }}">
+                    <input type="text" class="form-control" name="middle_name" autocomplete='off' disabled value="{{ profile.middle_name }}">
                   </div>
 
                   <div class="form-group col-md-4">
                     <label for="surname">Surname</label>
-                    <input type="text" class="form-control" name="surname" autocomplete='off' value="{{ profile.last_name }}">
+                    <input type="text" class="form-control" name="surname" autocomplete='off' disabled value="{{ profile.last_name }}">
                   </div>
 
                 </div>
                 
                 <div class="form-group">
                   <label for="username">Username</label>
-                  <input type="text" class="form-control" name="username" value="{{ profile.username }}">
+                  <input type="text" class="form-control" name="username" value="{{ profile.username }}" disabled>
                 </div>
           
                 <div class="form-group">
                   <label for="email">Email Address</label>
-                  <input type="email" class="form-control" name="email" value="{{ profile.email }}">
+                  <input type="email" class="form-control" name="email" value="{{ profile.email }}" disabled>
                 </div>
 
                 <div class="form-group">
@@ -98,7 +99,7 @@
                             </svg>
                       </div>
                     </div>
-                    <input type="tel" class="form-control" name="phone_number" value="{{ profile.phone_number }}">
+                    <input type="tel" class="form-control" name="phone_number" autocomplete='off'value="{{ profile.phone_number }}" disabled>
                   </div>
                 </div>
         
@@ -106,12 +107,12 @@
 
                   <div class="form-group col-md-6">
                     <label for="address1">Address</label>
-                    <input type="text" class="form-control" name="address1" value="{{ profile.address1 }}">
+                    <input type="text" class="form-control" name="address1" value="{{ profile.address1 }}" disabled>
                   </div>
   
                   <div class="form-group col-md-6">
                     <label for="address2">Address 2</label>
-                    <input type="text" class="form-control" name="address2" value="{{ profile.address2 }}">
+                    <input type="text" class="form-control" name="address2" value="{{ profile.address2 }}" disabled>
                   </div>
 
                 </div>
@@ -122,7 +123,6 @@
                     <label for="state">State</label>
                     <select name="state" class="form-control">
                       <option selected>{{ profile.state }}</option>
-                      <option>Adamawa</option>
                     </select>
                   </div>
 
@@ -130,27 +130,139 @@
                     <label for="city">City</label>
                     <select name="city" class="form-control">
                       <option selected>{{ profile.city }}</option>
-                      <option>...</option>
                     </select>
                   </div>
 
                   <div class="form-group col-md-2">
                     <label for="zip">Zip Code</label>
-                    <input type="text" class="form-control" name="zip" value="{{ profile.zipcode }}">
+                    <input type="text" class="form-control" name="zip" value="{{ profile.zipcode }}" disabled>
                   </div>
 
                 </div>
                 
             </fieldset>
             <div class="form-group">
-                <input type="submit" class='btn btn-outline-warning' value="Create">
+                <input type="submit" class='btn btn-outline-warning' value="Edit">
             </div>
           </form>
         </div>
 
-        <div class="container bg-dark p-2" id="profile-products-div"  style="display: none;">cihdbcsdhcsklcsc</div>
-        <div class="container bg-dark p-2" id="profile-sells-div"  style="display: none;">dcbsdkcnkldsnckls</div>
-        <div class="container bg-dark p-2" id="profile-orders-div"  style="display: none;">wdcidscndoincknedc</div>
+        <div  class="container bg-dark p-2" id="profile-products-div"  style="display: none;">
+          <legend class="border-bottom mb-4">Your Products on Market</legend>
+
+          <div id="own-product" class="d-flex p-2 bd-highlight border rounded-lg">
+            <div>
+               
+              <div class="row row-cols-2">
+                    
+                    {% for product in marketProducts %}
+            
+                      <div class="col mb-2" id="cart">
+                        <div style="margin-bottom: 5px" class="card text-center bg-dark">
+                          <div class="card-body" style="background-color: #212121;">
+                            <img class="rounded-lg" style="width: 100px; height: 80px; object-fit: cover;" src="{{ product.img.url }}" >
+                            
+                              <h5 class="card-title mx-auto mt-2 pb-1 d-block text-truncate" style="max-width: 200px;">{{ product.name.title }}</h5>
+            
+                              <h5 class="card-title mx-auto d-block text-truncate">{{ product.price |naira }}</h5>
+                              <div class="product">
+                                
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+            
+                                  <div class="d-flex justify-content-between">
+                                    <a class="btn btn-outline-success" href="{% url 'view_product' product.id %}">View</a>
+                                    <a class="btn btn-outline-danger ml-2" href="{% url 'view_product' product.id %}">Delete</a>
+                                  </div>
+            
+                                  
+                                </div>
+                                
+                              </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                    {% empty %}
+                      <h1 style="color: white; font-weight: bold">No Product on the Market</h1>
+                    {% endfor %}
+          
+                    
+              </div>
+
+            </div>
+        </div>
+
+         
+        </div>
+        <div class="container bg-dark p-2" id="profile-sells-div"  style="display: none;">
+          <legend class="border-bottom mb-4">Your sold Products</legend>
+
+          <table class="table table-hover table-dark">
+            <thead>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Date</th>
+                <th scope="col">Subtotal</th>
+            </thead>
+        
+            <tbody>
+                {% for item in sells %}        
+                <tr>
+                    <td>
+                        {{ item.product.name }}
+                    </td>
+                    <td>{{ item.product.price|naira }}</td>
+                    <td>
+                        {{ item.quantity }}
+                    </td>
+                    <td>
+                      {{ item.order.order_timestamp }}
+                    </td>
+                    <td>
+                      {{ item.get_total|naira }}
+                    </td>
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+          </table>
+
+        </div>
+        <div class="container bg-dark p-2" id="profile-orders-div"  style="display: none;">
+          <legend class="border-bottom mb-4">Your ordered Products</legend>
+
+          <table class="table table-hover table-dark">
+                <thead>
+                  <th scope="col">Transaction Id</th>
+                  <th scope="col">Order</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Amount</th>
+                </thead>
+            
+                <tbody>
+                    {% for order in orders %}        
+                    <tr>
+                        <td>
+                            {{ order.transaction_id }}
+                        </td>
+                        <td>
+                          {{ order }}
+                        </td>
+                        <td>
+                            {{ order.order_timestamp }}
+                        </td>
+                        <td>
+                          {{ order.get_cart_total|naira }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                </tbody>
+          </table>
+
+        </div>
         
       </div>
 
