@@ -83,8 +83,18 @@
                         </div>
     
                         <hr>
-                        <input id="form-button" class="btn btn-success btn-block" type="submit" value="Place Order">
+                        {% if user.is_authenticated %}
+                            <input id="form-button" class="btn btn-success btn-block" type="submit" value="Place Order">
+                        {% else %}
+                            <input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
+                        {% endif %}
                     </form>
+                </div>
+                <br>
+
+                <div class="box-element hidden bg-dark" id="payment-info" >
+                    <small>Paypal Options</small>
+                    <button id="make-payment">Make payment</button>
                 </div>
 
             </div>
@@ -93,7 +103,7 @@
                  <div class="box-element bg-dark">
                     <table class="table table-dark">
                         
-                    <a class="btn btn-outline-warning" href="{% url 'cart' %}">&#x2190; Back to Cart</a>                
+                    <a class="btn btn-outline-warning" href="{% url 'foodNet:cart' %}">&#x2190; Back to Cart</a>                
                         
                     <hr>
                     <h3>Order Summary</h3>
@@ -125,7 +135,12 @@
 
     <script type="text/javascript">
         let total = "{{order.get_cart_total}}";
+        var marketUrl = "{% url 'foodNet:market' %}";
         
     </script>
 {% endblock content %}
+
+{% block script %}
+    <script src="{% static 'foodnet/js/checkout.js' %}"></script>
+{% endblock %}
 

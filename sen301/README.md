@@ -23,6 +23,16 @@ test1234
 customer
 customer1234
 
+Hafiz-Suya
+h1234
+
+
+Zee-Hunger-Killer
+z1234
+
+Fresh_Grace
+g1234
+
 if(action == 'delete'){
   document.getElementById('messageSpan').innerHTML = "The value has been deleted."; 
 
@@ -30,3 +40,11 @@ if(action == 'delete'){
     window.location.reload(true);
   }, 3000);
 }
+
+
+// to redirect to the market view
+// window.location.href = "{% url 'market' %}"
+
+// to reload a page
+// location.reload()
+// window.location.reload(true);

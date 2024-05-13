@@ -31,7 +31,7 @@
                
                 <tr>
                     <th>
-                        <a class="btn btn-outline-warning" href="{% url 'market' %}">&#x2190; Continue Shopping</a>
+                        <a class="btn btn-outline-warning" href="{% url 'foodNet:market' %}">&#x2190; Continue Shopping</a>
                     </th>
                 </tr>
                 <tr>
@@ -42,7 +42,7 @@
                         <h5>Total: <strong>{{ order.get_cart_total|naira }}</strong> </h5>
                     </th>
                     <th>
-                        <a style="float: right; margin: 5px;" class="btn btn-success" href="{% url 'checkout'%}">Checkout</a>
+                        <a style="float: right; margin: 5px;" class="btn btn-success" href="{% url 'foodNet:checkout'%}">Checkout</a>
                     </th>
                 </tr>
             </table>

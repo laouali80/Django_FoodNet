@@ -21,7 +21,7 @@
   <div>
 
   <div class="container mt-4">
-    <form method="POST" action="{% url 'login' %}" class="form-signin" style="color: white">
+    <form method="POST" action="{% url 'foodNet:login' %}" class="form-signin" style="color: white">
       <!-- againt a cross site Request Forgery (CSRF) -->
       {% csrf_token %}
 
@@ -44,7 +44,7 @@
         <h6>Do not have an account?</h6>
         <a
           class="btn btn-sm btn-secondary"
-          href="{% url 'register' %}"
+          href="{% url 'foodNet:register' %}"
           >Register</a
         >
       </div>

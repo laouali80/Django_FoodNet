@@ -7,7 +7,7 @@
 {% block content %}
 <body class="text-center">
   <div class="container mt-4">
-    <form method="POST" action="{% url 'register' %}" class="form-register" style="color: white">
+    <form method="POST" action="{% url 'foodNet:register' %}" class="form-register" style="color: white">
       <!-- againt a cross site Request Forgery (CSRF) -->
       {% csrf_token %}
 
@@ -71,28 +71,31 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="address1">Address 1*</label>
-          <input type="text" class="form-control" name="address1" placeholder="1234 Main St">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="address1">Address 1*</label>
+            <input type="text" class="form-control" name="address1" placeholder="1234 Main St">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="address2">Address 2</label>
+            <input type="text" class="form-control" name="address2" placeholder="Apartment, studio, or floor">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="address2">Address 2</label>
-          <input type="text" class="form-control" name="address2" placeholder="Apartment, studio, or floor">
-        </div>
+
         <div class="form-row">
           <div class="form-group col-md-4">
             <label for="state">State</label>
             <select name="state" class="form-control">
-              <option selected>Choose...</option>
-              <option>Adamawa</option>
+              <option selected disabled>Choose...</option>
+              <option value="Adamawa">Adamawa</option>
             </select>
           </div>
 
           <div class="form-group col-md-4">
             <label for="city">City</label>
             <select name="city" class="form-control">
-              <option selected>Choose...</option>
-              <option>Yola</option>
+              <option selected disabled>Choose...</option>
+              <option value="Yola">Yola</option>
             </select>
           </div>
           
@@ -106,7 +109,7 @@
 
       <div class="checkbox mb-3">
         <h6>Already have an account?</h6>
-        <a class="btn btn-sm btn-secondary" href="#"
+        <a class="btn btn-sm btn-secondary" href="{% url 'foodNet:login'%}"
           >Login</a
         >
       </div>

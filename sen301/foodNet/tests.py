@@ -381,11 +381,266 @@ class FoodNetTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("foodnet/home_page.html", [template.name for template in response.templates ])
 
-    def test_login(self):
-        """"""
-        pass
+    def test_valid_corect_login(self):
+        """"check the responses httpRedirect(302) and 200 of the login route(view) with its context"""
 
-    def test_register(self):
-        pass
+        c = Client()
+        response = c.get("/foodNet/login/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("foodnet/login.html", [template.name for template in response.templates ])
+        self.assertTrue(response.context["form"])
+        c.logout()
+
+        c = Client()
+        response = c.post("/foodNet/login/", {"username": "test", "password": "t1234"})
+        self.assertEqual(response.status_code, 302)
+        response = c.get("/foodNet/login/")
+        self.assertEqual(response.status_code, 302)
+
+    def test_invalid_login(self):
+        """Check the responses of an invalid login."""
         
+        c = Client()
+        response = c.post("/foodNet/login/", {"username": "lbid", "password": "t1234"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("foodnet/login.html", [template.name for template in response.templates ])
+        self.assertTrue(response.context["form"])
+        # print("\n", response.context['messages'].tag, "\n")
+        # self.assertEqual(response.context["messages"].message, 'Invalid Username/Password! Please Try again.')
+
+        c = Client()
+        response = c.post("/foodNet/login/", {"username": "", "password": "t"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("foodnet/login.html", [template.name for template in response.templates ])
+        self.assertTrue(response.context["form"])
+        # self.assertEqual(response.context["messages"].message, 'Please fill the form to login!!')
+
+    # def test_registration_form(self):
+
+    #     c = Client()
+    #     response = c.get("/foodNet/register/")
+    #     print('\n regis_form: ', response, '\n')
+    #     # self.assertEqual(response.status_code, 200)
+    #     # self.assertIn("foodnet/register.html", [template.name for template in response.templates ])        
         
+
+
+    # def test_valid_registration(self):
+    #     """Check a valid registration"""
+
+    #     c = Client()
+    #     registerForm = {
+    #         "first_name" : "t",
+    #         "surname" : "t",
+    #         "middle_name" : "t",
+    #         "username" : "t",
+    #         "email" : "mock@gmail.com",
+    #         "password" : "t1",
+    #         "confirmation" : "t1",
+    #         "phone_number" : "12",
+    #         "address1" : "st1",
+    #         "address2" : "st1",       
+    #         "state" : "a",
+    #         "city" : "z",
+    #         "zipcode": "d"
+    #     }
+    #     response = c.post("/foodNet/register/", registerForm)
+    #     self.assertEqual(response.status_code, 302)
+
+    #     # redirect with the get request while register
+    #     response = c.get("/foodNet/register/")
+    #     self.assertEqual(response.status_code, 302)
+
+    #     c.logout()
+
+    #     # self.assertIn("foodnet/login.html", [template.name for template in response.templates ])
+
+
+    # def test_invalid_registration(self):
+    #     """Check invalids registration."""
+
+    #     # missing field (first_name)
+    #     c = Client()
+    #     registerForm = {
+    #         "first_name" : "",
+    #         "surname" : "t",
+    #         "middle_name" : "t",
+    #         "username" : "t",
+    #         "email" : "t@gmail.com",
+    #         "password" : "t1",
+    #         "confirmation" : "t1",
+    #         "phone_number" : "12",
+    #         "address1" : "st1",
+    #         "address2" : "st1",       
+    #         "state" : "a",
+    #         "city" : "z",
+    #         "zipcode": "d"
+    #     }
+    #     response = c.post("/foodNet/register/", registerForm)
+    #     print('\n', response, '\n')
+    #     # self.assertEqual(response.status_code, 200)
+    #     # self.assertIn("foodnet/register.html", [template.name for template in response.templates ])
+
+    #     # unmatch password
+    #     # c = Client()
+    #     # registerForm = {
+    #     #     "first_name" : "",
+    #     #     "surname" : "t",
+    #     #     "middle_name" : "t",
+    #     #     "username" : "t",
+    #     #     "email" : "t@gmail.com",
+    #     #     "password" : "twrong",
+    #     #     "confirmation" : "tright",
+    #     #     "phone_number" : "12",
+    #     #     "address1" : "st1",
+    #     #     "address2" : "st1",       
+    #     #     "state" : "a",
+    #     #     "city" : "z",
+    #     #     "zipcode": "d"
+    #     # }
+    #     # response = c.post("/foodNet/register/", registerForm)
+    #     # self.assertEqual(response.status_code, 200)
+    #     # self.assertIn("foodnet/register.html", [template.name for template in response.templates ])
+
+
+    #     # Username already taken
+    #     # c = Client()
+    #     # registerForm = {
+    #     #     "first_name" : "t",
+    #     #     "surname" : "t",
+    #     #     "middle_name" : "t",
+    #     #     "username" : "test",
+    #     #     "email" : "mock@gmail.com",
+    #     #     "password" : "twrong",
+    #     #     "confirmation" : "tright",
+    #     #     "phone_number" : "12",
+    #     #     "address1" : "st1",
+    #     #     "address2" : "st1",       
+    #     #     "state" : "a",
+    #     #     "city" : "z",
+    #     #     "zipcode": "d"
+    #     # }
+    #     # response = c.post("/foodNet/register/", registerForm)
+    #     # self.assertEqual(response.status_code, 200)
+    #     # self.assertIn("foodnet/register.html", [template.name for template in response.templates ])
+
+    def test_market_Unauthorise_User(self):
+        """Check the response of market view of an unauthorise user."""
+
+        c = Client()
+        response = c.get("/foodNet/market/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("foodnet/market.html", [template.name for template in response.templates ])
+        self.assertTrue(response.context["products"])
+        self.assertEqual(response.context["categories"].count(), 3)
+        # self.assertIn(Product.objects.filter(description='description2'), response.context["products"].object_list)    
+        # c.logout() 
+
+    # def test_market_Authorise_User(self):
+    #     """Check the response of market view of an authorize user.""" 
+
+    #     c = Client()
+    #     c.login(username='test', password='t1234')
+    #     response = c.get("/foodNet/market/")
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn("foodnet/market.html", [template.name for template in response.templates ])
+    #     self.assertTrue(response.context["products"])
+    #     print('\n items: ', Order.objects.get_or_create(client=c, complete=False).order_items.all(), '\n')
+    #     self.assertEqual(response.context["cartItems"], 2)
+    #     self.assertEqual(response.context["categories"].count(), 3)
+    #     self.assertIn(Product.objects.get(description='description2'), response.context["products"].object_list)    
+    #     c.logout()
+
+    # def test_cart_view(self):
+    #     """Check the responses of the cart view.""" 
+
+    #     c = Client()
+    #     c.login(username='test', password='t1234')
+    #     response = c.get("/foodNet/market/cart/")
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn("foodnet/cart.html", [template.name for template in response.templates ])
+    #     self.assertEqual(response.context["items"].count(), 3)
+    #     self.assertEqual(response.context["cartItems"], 2)
+    #     self.assertEqual((Order.objects.filter(client=c)).get_cart_items(), 3)
+    #     self.assertEqual((Order.objects.filter(client=c)).get_cart_items(), 3)
+    #     self.assertIn(Product.objects.get(description='description2'), response.context["products"].object_list)
+    #     c.logout()
+        
+
+    # def test_checkout_view(self):
+    #     """Check the response of the checkout view."""
+
+    #     c = Client()
+    #     c.login(username='test', password='t1234')
+    #     response = c.get("/foodNet/market/cart/checkout/")
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn("foodnet/checkout.html", [template.name for template in response.templates ])
+    #     self.assertEqual(response.context["items"].count(), 3)
+    #     self.assertEqual(response.context["cartItems"], 2)
+    #     self.assertEqual((Order.objects.filter(client=c)).get_cart_items(), 3)
+    #     # self.assertIn(Product.objects.filter(description='description2'), response.context["products"].object_list)
+    #     c.logout()
+         
+
+    def test_checkout_view_redirect(self):
+        """Check the redirect of checkout view if an authentic User."""
+        
+        c = Client()
+        response = c.get("/foodNet/market/cart/checkout/")
+        self.assertEqual(response.status_code, 302)
+         
+
+    def test_view_product_by_authorize_User(self):
+        """Check view_product route by authorise user."""
+
+        c = Client()
+        c.login(username='test', password='t1234')
+        response = c.get("/foodNet/market/product/2")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["product"])
+        self.assertTrue(response.context["cartItems"])
+        self.assertIn("foodnet/view_product.html", [template.name for template in response.templates ])
+        c.logout()
+
+
+    def test_view_product_by_Unauthorize_User(self):
+        """Check view_product route by an unautorise user."""
+
+        c = Client()
+        response = c.get("/foodNet/market/product/2")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["product"])
+        self.assertIn("foodnet/view_product.html", [template.name for template in response.templates ]) 
+
+    # def test_invalid_view_product_request(self):
+    #     """Check invalid view_product requests."""
+
+    #     # unexisting product id
+    #     c = Client()
+    #     c.login(username='test', password='t1234')
+    #     product = Product.objects.all().aggregate(Max("id"))["id__max"]
+    #     response = c.get(f"/foodNet/market/product/{product + 1}")
+    #     self.assertEqual(response.status_code, 302)
+    #     c.logout()
+
+    #     # wrong parameter pass
+    #     c = Client()
+    #     c.login(username='test', password='t1234')
+    #     response = c.get(f"/foodNet/market/product/wrong")
+    #     self.assertEqual(response.status_code, 302)
+    #     c.logout() 
+
+    def test_valid_create_product(self):
+        pass 
+
+    def test_(self):
+        pass 
+
+    def test_(self):
+        pass 
+
+    def test_(self):
+        pass 
+
+    def test_(self):
+        pass 

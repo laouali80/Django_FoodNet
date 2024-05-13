@@ -20,7 +20,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def home_page(request):
     if request.user.is_authenticated:
-        return redirect('market')
+        return redirect('foodNet:market')
     return render(request, "foodnet/home_page.html")
 
 
@@ -28,7 +28,7 @@ def login_view(request):
 
     # redirect the user to market if he is login
     if request.user.is_authenticated:
-        return redirect('market')
+        return redirect('foodNet:market')
     
     if request.method == "POST":
 
@@ -46,7 +46,7 @@ def login_view(request):
             # Check if authentication successful
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse("market"))
+                return HttpResponseRedirect(reverse("foodNet:market"))
             else:
                     
                 messages.info(request, 'Invalid Username/Password! Please Try again.')
@@ -68,14 +68,14 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("login"))
+    return HttpResponseRedirect(reverse("foodNet:login"))
 
 
 def register(request):
 
     #  redirect the user if he is login
     if request.user.is_authenticated:
-        return redirect('market')
+        return redirect('foodNet:market')
     
     if request.method == "POST":
         
@@ -127,7 +127,7 @@ def register(request):
 
         login(request, user)
         messages.success(request, 'Welcome the FoodNet community !! Your account has been created.')
-        return HttpResponseRedirect(reverse("market"))
+        return HttpResponseRedirect(reverse("foodNet:market"))
     else:
         return render(request, "foodnet/register.html", {
             "form": RegisterForm(),
@@ -151,51 +151,101 @@ def market(request):
 
         categories = Category.objects.all()
 
-        return render(request, "foodnet/market.html", {
-            'products': page_obj,
-            'cartItems': cartItems,
-            'categories': categories,
-            'paginator': paginator 
-        })
     else:
 
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+
         products = Product.objects.all().order_by('product_timestamp')
+        paginator = Paginator(products, 6)
+        page_number = request.GET.get("page", 1)
+        page_obj = paginator.get_page(page_number)
         categories = Category.objects.all()
 
-        return render(request, "foodnet/market.html", {
-            'products': products,
-            'categories': categories 
-        })
-
-
-@login_required(login_url="/foodNet/login/")
-def cart(request):
-
-    client = request.user
-    order, created = Order.objects.get_or_create(client=client, complete=False)
-    # items = order.orderitem_set.all() (if related name was not given)
-    items = order.order_items.all()
-    cartItems = order.get_cart_items
-    
-    return render(request, "foodnet/cart.html", {
-        'items': items,
-        'order': order,
+    return render(request, "foodnet/market.html", {
+        'products': page_obj,
         'cartItems': cartItems,
+        'categories': categories,
+        'paginator': paginator 
     })
 
 
-@login_required(login_url="foodNet/login")
+# @login_required(login_url="/foodNet/login/")
+def cart(request):
+
+    if request.user.is_authenticated:
+        client = request.user
+        order, created = Order.objects.get_or_create(client=client, complete=False)
+        # items = order.orderitem_set.all() (if related name was not given)
+        items = order.order_items.all()
+        cartItems = order.get_cart_items
+        
+    else:
+        # fetching the cookies
+        try:
+            cart = json.loads(request.COOKIES['cart'])
+        except:
+            cart = {}
+        
+        print('cart: ', cart)
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+
+        for i in cart:
+
+            try:
+                cartItems += cart[i]['quantity']
+
+                product = Product.objects.get(id=i)
+                total = (product.price * cart[i]['quantity'])
+                order['get_cart_total'] += total
+                order['get_cart_items'] += cart[i]['quantity']
+
+                item = {
+                    'product':{
+                        'id':product.id,
+                        'name':product.name,
+                        'price':product.price,
+                        'img':product.img,
+                    },
+                    'quantity':cart[i]['quantity'],
+                    'get_total':total,
+                }
+                items.append(item)
+            except:
+                messages.info(request, 'Something wrong happen!! Please try again.')
+                return render(request, "foodnet/cart.html", {
+                    'items': items,
+                    'order': order,
+                    'cartItems': cartItems,
+                })
+
+    return render(request, "foodnet/cart.html", {
+            'items': items,
+            'order': order,
+            'cartItems': cartItems,
+        })
+
+
+# @login_required(login_url="foodNet/login")
 def checkout(request):
 
-    client = request.user
-    order, created = Order.objects.get_or_create(client=client, complete=False)
-    # items = order.orderitem_set.all() (if related name was not given)
-    items = order.order_items.all()
-    cartItems = order.get_cart_items
+    if request.user.is_authenticated:
+        client = request.user
+        order, created = Order.objects.get_or_create(client=client, complete=False)
+        # items = order.orderitem_set.all() (if related name was not given)
+        items = order.order_items.all()
+        cartItems = order.get_cart_items
+    else:
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
 
-    if cartItems < 1:
-        messages.warning(request, 'Please add some products before checking out.')
-        return redirect('cart')
+        
+    # if cartItems < 1:
+    #     messages.warning(request, 'Please add some products before checking out.')
+    #     return redirect('foodNet:cart')
     
     return render(request, "foodnet/checkout.html", {
         'items': items,
@@ -210,16 +260,24 @@ def view_product(request, product_id):
         product = Product.objects.get(pk=int(product_id))
     except UnboundLocalError or ValueError:
         messages.info(request, '404 Not Found!! Product not found.')
-        return redirect('market')
+        return redirect('foodNet:market')
     except Product.DoesNotExist:
         messages.info(request, '404 Not Found!! Product not found.')
-        return redirect('market')
+        return redirect('foodNet:market')
     
-    client = request.user
-    order, created = Order.objects.get_or_create(client=client, complete=False)
-    cartItems = order.get_cart_items
-    
-    
+    if request.user.is_authenticated:
+        client = request.user
+        order, created = Order.objects.get_or_create(client=client, complete=False)
+        cartItems = order.get_cart_items
+          
+        # return render(request, "foodnet/view_product.html",{
+        #     'product':product,
+        #     'cartItems': cartItems
+        # })
+    else:
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+
     return render(request, "foodnet/view_product.html",{
         'product':product,
         'cartItems': cartItems
@@ -273,7 +331,7 @@ def create_product(request):
 
         
         messages.success(request, f'Your product {name.title()} has been added to the market for {naira(int(price))}.')
-        return HttpResponseRedirect(reverse("market"))
+        return HttpResponseRedirect(reverse("foodNet:market"))
 
     else:
         categories = Category.objects.all()
@@ -295,31 +353,30 @@ def profile(request, prof_name, prof_id):
         profile = User.objects.get(pk=int(prof_id))
 
         if profile.username != prof_name:
-            return redirect('market')
+            return redirect('foodNet:market')
         
     except UnboundLocalError or ValueError:
         messages.info(request, '404 Not Found!! Profile not found.')
-        return redirect('market')
+        return redirect('foodNet:market')
     except Product.DoesNotExist:
         messages.info(request, '404 Not Found!! Profile not found.')
-        return redirect('market')
+        return redirect('foodNet:foodNet:market')
     
     
     order, created = Order.objects.get_or_create(client=profile, complete=False)
     cartItems = order.get_cart_items
 
-    marketProducts = Product.objects.filter(vendor=profile).order_by('product_timestamp')
+    marketProducts = Product.objects.filter(vendor=profile).order_by('-product_timestamp')
     
-    # print(marketProducts)
+    
     sells = []
     for product in marketProducts:
         orderItems = OrderItem.objects.filter(product=product).order_by('added_timestamp')
         for item in orderItems:
             if item.order.complete == True:
-                print(item)
+                
                 sells.append(item)
 
-    print(sells)
 
     orders = Order.objects.filter(client=profile).exclude(complete=False).order_by('order_timestamp')
     
@@ -333,9 +390,10 @@ def profile(request, prof_name, prof_id):
 
 
 # @csrf_exempt
-@login_required(login_url="/foodNet/login/")
+# @login_required(login_url="/foodNet/login/")
 def updateItem(request):
 
+    # parse the data receive to python object(dictionary)
     data = json.loads(request.body)
     productId = data['productId']
     action = data['action']
@@ -345,10 +403,10 @@ def updateItem(request):
         product = Product.objects.get(pk=productId)
     except UnboundLocalError or ValueError:
         messages.info(request, '400 Bad request!! Product not found.')
-        return redirect('market')
+        return redirect('foodNet:foodNet:market')
     except Product.DoesNotExist:
         messages.info(request, '404 Not Found!! Product not found.')
-        return redirect('market')
+        return redirect('foodNet:market')
 
     # query or create a new order
     order, created = Order.objects.get_or_create(client=client, complete=False)
@@ -379,17 +437,30 @@ def placeOrder(request):
     
     shipping = data['shipping']
 
+    # print(shipping["total"])
+
     transaction_id = datetime.datetime.now().timestamp()
 
     if shipping['total'] == order.get_cart_total or shipping['total'] == (order.get_cart_total + 500):
         if request.user.can_purchase(shipping['total']):
             order.complete = True
             order.transaction_id = transaction_id
+
+            items = order.order_items.all()
+
+            for item in items:
+                credit = item.get_total
+                item.product.vendor.budget = item.product.vendor.budget + credit
+                item.product.vendor.save()
+
+            client.budget = client.budget - shipping['total']
+            client.save()
             order.save()
         else:
-            return JsonResponse('No enough Budget', safe=False)
+            return JsonResponse({
+                'response': 'Fail'}, safe=False)
     else:
-        return JsonResponse('Intruder!! Someone wants to change the data.', safe=False)
+        return JsonResponse('Intruder', safe=False)
     
     ShippingAddress.objects.create(
         client=client,
@@ -402,7 +473,8 @@ def placeOrder(request):
         zipcode=shipping['zipcode']
     )
 
-    return JsonResponse('Order Placed.', safe=False)
+    return JsonResponse({
+        'response': 'Success'}, safe=False)
     
 
 def search(request):
@@ -417,42 +489,55 @@ def search(request):
                     # checking if the category exists.
                     Category.objects.get(pk=int(search))
 
-                    client = request.user
-                    order, created = Order.objects.get_or_create(client=client, complete=False)
-                    cartItems = order.get_cart_items
+                    if request.user.is_authenticated:
+                        client = request.user
+                        order, created = Order.objects.get_or_create(client=client, complete=False)
+                        cartItems = order.get_cart_items
 
-                    products = Product.objects.filter(category=Category.objects.get(pk=int(search))).exclude(vendor=request.user).order_by('product_timestamp')
-                    paginator = Paginator(products, 6)
-                    page_number = request.GET.get("page", 1)
-                    page_obj = paginator.get_page(page_number)
+                        products = Product.objects.filter(category=Category.objects.get(pk=int(search))).exclude(vendor=request.user).order_by('product_timestamp')
+                        paginator = Paginator(products, 6)
+                        page_number = request.GET.get("page", 1)
+                        page_obj = paginator.get_page(page_number)
 
-                    return render(request, "foodnet/market.html", {
-                        'products': page_obj,
-                        'cartItems': cartItems,
-                        'categories': Category.objects.all(),
-                        'paginator': paginator
-                    })
+                        return render(request, "foodnet/market.html", {
+                            'products': page_obj,
+                            'cartItems': cartItems,
+                            'categories': Category.objects.all(),
+                            'paginator': paginator
+                        })
+                    else:
+                        products = Product.objects.filter(category=Category.objects.get(pk=int(search))).order_by('product_timestamp')
+                        paginator = Paginator(products, 6)
+                        page_number = request.GET.get("page", 1)
+                        page_obj = paginator.get_page(page_number)
+                        categories = Category.objects.all()
+
+                        return render(request, "foodnet/market.html", {
+                            'products': page_obj,
+                            'categories': categories,
+                            'paginator': paginator 
+                        })
             
                 except UnboundLocalError or ValueError:
                     messages.info(request, '400 Bad Request!! Category not found.')
-                    return redirect('market')
+                    return redirect('foodNet:market')
                 except Category.DoesNotExist:
                     # if the category does not exist we throw a 404 (not found). error
                     messages.info(request, '404 Not Found!! Category not found.')
-                    return redirect('market')
+                    return redirect('foodNet:market')
             # checking if the user wants all the auctions (with no category).
             elif search == "all":
-                # print("all")
-                return redirect("market")
+                
+                return redirect("foodNet:market")
             else:
                 # else if the user attempt something else we throw a 404 (not found) error.
                 messages.warning(request, '403 Search Forbidden!! Category not found.')
-                return redirect('market')
+                return redirect('foodNet:market')
         else:
             messages.info(request, '403 Search Forbidden!! Category not found.')
-            return redirect('market')
+            return redirect('foodNet:market')
     else:
-        # print("not here")
+        
         # if the user attempt to access by a post request
         return redirect("index")
 
@@ -465,9 +550,58 @@ def editProduct(request):
     pass
 
 
-def deleteProduct(request):
-    pass
+@login_required(login_url="/foodNet/login/")
+def deleteProduct(request, product_id):
+    
+    try:  
+        product = Product.objects.get(pk=int(product_id))
+    except UnboundLocalError or ValueError:
+        messages.warning(request, '404 Not Found!! Product not found.')
+        return redirect('foodNet:profile', prof_name=request.user.username, prof_id=request.user.id)
+    except Product.DoesNotExist:
+        messages.warning(request, '404 Not Found!! Product not found.')
+        return redirect('foodNet:profile', prof_name=request.user.username, prof_id=request.user.id)
+    
+    if request.user != product.vendor:
+        messages.warning(request, '401 Unauthorized!! Unauthorized Request.')
+        return redirect('foodNet:profile', prof_name=request.user.username, prof_id=request.user.id)
+    
+    
+    product.delete()
+
+    messages.success(request, 'The product has been removed from the market.')
+    return redirect('foodNet:profile', prof_name=request.user.username, prof_id=request.user.id)
+
 
 
 def editProfile(request):
     pass
+
+
+@login_required(login_url="/foodNet/login/")
+def view_own_product(request, product_id):
+
+    try:  
+        product = Product.objects.get(pk=int(product_id))
+    except UnboundLocalError or ValueError:
+        messages.info(request, '404 Not Found!! Product not found.')
+        return redirect('foodNet:market')
+    except Product.DoesNotExist:
+        messages.info(request, '404 Not Found!! Product not found.')
+        return redirect('foodNet:market')
+    
+    client = request.user
+    order, created = Order.objects.get_or_create(client=client, complete=False)
+    cartItems = order.get_cart_items
+    
+    
+    return render(request, "foodnet/view_own_product.html",{
+        'product':product,
+        'cartItems': cartItems
+    })
+   
+
+@login_required(login_url="/foodNet/login/")
+def orders(request, user_name):
+    
+    return render(request, "foodnet/orders.html")

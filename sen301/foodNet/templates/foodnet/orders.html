@@ -1,0 +1,96 @@
+{% extends 'foodnet/layout.html' %} 
+{% load static %}
+{% load my_filter %}
+
+{% block title %} Orders {% endblock title %} 
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="container bg-dark p-2" id="profile-sells-div"  style="display: none;">
+            <legend class="border-bottom mb-4">Your sold Products</legend>
+
+            <table class="table table-hover table-dark">
+                <thead>
+                    <th scope="col">Product</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Subtotal</th>
+                </thead>
+            
+                <tbody>
+                    <!-- {% for item in sells %}         -->
+                    <tr>
+                        <td>
+                            <!-- {{ item.product.name }} -->
+                            Burger
+                        </td>
+                        <td>
+                            <!-- {{ item.product.price|naira }} -->
+                            23434
+                        </td>
+                        <td>
+                            <!-- {{ item.quantity }} -->
+                            x2
+                        </td>
+                        <td>
+                          <!-- {{ item.order.order_timestamp }} -->
+                          23/434/1223
+                        </td>
+                        <td>
+                          <!-- {{ item.get_total|naira }} -->
+                          3245456
+                        </td>
+                    </tr>
+                    <!-- {% endfor %} -->
+                    
+                </tbody>
+              </table>
+        </div>
+
+        <div class="container bg-dark p-2" id="profile-orders-div"  style="display: none;">
+            <legend class="border-bottom mb-4">Your ordered Products</legend>
+            
+            <table class="table table-hover table-dark">
+                <thead>
+                  <th scope="col">Transaction Id</th>
+                  <th scope="col">Order</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Amount</th>
+                </thead>
+            
+                <tbody>
+                    <!-- {% for order in orders %}         -->
+                    <tr>
+                        <td>
+                            <!-- {{ order.transaction_id }} -->
+                            34456
+                        </td>
+                        <td>
+                          <!-- {{ order }} -->
+                          order1
+                        </td>
+                        <td>
+                            <!-- {{ order.order_timestamp }} -->
+                            23/45/5654
+                        </td>
+                        <td>
+                          <!-- {{ order.get_cart_total|naira }} -->
+                          4567656
+                        </td>
+                    </tr>
+                    <!-- {% endfor %} -->
+                    
+                </tbody>
+          </table>
+        </div>
+    
+    </div>
+
+    <script type="text/javascript">
+      
+    </script>
+
+{% endblock content %}

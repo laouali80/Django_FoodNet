@@ -21,7 +21,7 @@
     <div class="container mt-2">
         <div class="container w-50 mb-4">
             <div class="bg-dark p-3">
-                <form method="POST" action="{% url 'create_product' %}" enctype="multipart/form-data">
+                <form method="POST" action="{% url 'foodNet:create_product' %}" enctype="multipart/form-data">
                     <!-- add csrf token against attacks -->
                     {% csrf_token %}
     
