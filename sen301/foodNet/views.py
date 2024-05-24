@@ -14,14 +14,18 @@ from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from .utils import cookieCart, cartData
 
 # Create your views here.
 
 def home_page(request):
+    cookieData = cookieCart(request)
+    cartItems = cookieData['cartItems']
     if request.user.is_authenticated:
         return redirect('foodNet:market')
-    return render(request, "foodnet/home_page.html")
+    return render(request, "foodnet/home_page.html", {
+        'cartItems': cartItems
+    })
 
 
 def login_view(request):
@@ -61,8 +65,11 @@ def login_view(request):
             "form": form
         })
     else:
+        cookieData = cookieCart(request)
+        cartItems = cookieData['cartItems']
         return render(request, "foodnet/login.html", {
-            "form": LoginForm()
+            "form": LoginForm(),
+            'cartItems': cartItems,
         })
     
 
@@ -129,8 +136,11 @@ def register(request):
         messages.success(request, 'Welcome the FoodNet community !! Your account has been created.')
         return HttpResponseRedirect(reverse("foodNet:market"))
     else:
+        cookieData = cookieCart(request)
+        cartItems = cookieData['cartItems']
         return render(request, "foodnet/register.html", {
             "form": RegisterForm(),
+            'cartItems': cartItems
         })
 
 
@@ -153,14 +163,25 @@ def market(request):
 
     else:
 
-        order = {'get_cart_total':0, 'get_cart_items':0}
-        cartItems = order['get_cart_items']
-
+       # fetching the cookies
+        cookieData = cookieCart(request)
+        cartItems = cookieData['cartItems']
+        
+        
         products = Product.objects.all().order_by('product_timestamp')
         paginator = Paginator(products, 6)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
         categories = Category.objects.all()
+
+        if(cookieData['error']):
+            messages.info(request, 'Something wrong happen!! Please try again.')
+            return render(request, "foodnet/market.html", {
+                'products': page_obj,
+                'cartItems': cartItems,
+                'categories': categories,
+                'paginator': paginator
+            })
 
     return render(request, "foodnet/market.html", {
         'products': page_obj,
@@ -173,53 +194,18 @@ def market(request):
 # @login_required(login_url="/foodNet/login/")
 def cart(request):
 
-    if request.user.is_authenticated:
-        client = request.user
-        order, created = Order.objects.get_or_create(client=client, complete=False)
-        # items = order.orderitem_set.all() (if related name was not given)
-        items = order.order_items.all()
-        cartItems = order.get_cart_items
-        
-    else:
-        # fetching the cookies
-        try:
-            cart = json.loads(request.COOKIES['cart'])
-        except:
-            cart = {}
-        
-        print('cart: ', cart)
-        items = []
-        order = {'get_cart_total':0, 'get_cart_items':0}
-        cartItems = order['get_cart_items']
-
-        for i in cart:
-
-            try:
-                cartItems += cart[i]['quantity']
-
-                product = Product.objects.get(id=i)
-                total = (product.price * cart[i]['quantity'])
-                order['get_cart_total'] += total
-                order['get_cart_items'] += cart[i]['quantity']
-
-                item = {
-                    'product':{
-                        'id':product.id,
-                        'name':product.name,
-                        'price':product.price,
-                        'img':product.img,
-                    },
-                    'quantity':cart[i]['quantity'],
-                    'get_total':total,
-                }
-                items.append(item)
-            except:
-                messages.info(request, 'Something wrong happen!! Please try again.')
-                return render(request, "foodnet/cart.html", {
-                    'items': items,
-                    'order': order,
-                    'cartItems': cartItems,
-                })
+    data = cartData(request)
+    items = data['items']
+    order = data['order']
+    cartItems = data['cartItems']
+    
+    if(data['error']):
+        messages.info(request, 'Something wrong happen!! Please try again.')
+        return render(request, "foodnet/cart.html", {
+            'items': items,
+            'order': order,
+            'cartItems': cartItems,
+        })        
 
     return render(request, "foodnet/cart.html", {
             'items': items,
@@ -231,21 +217,18 @@ def cart(request):
 # @login_required(login_url="foodNet/login")
 def checkout(request):
 
-    if request.user.is_authenticated:
-        client = request.user
-        order, created = Order.objects.get_or_create(client=client, complete=False)
-        # items = order.orderitem_set.all() (if related name was not given)
-        items = order.order_items.all()
-        cartItems = order.get_cart_items
-    else:
-        items = []
-        order = {'get_cart_total':0, 'get_cart_items':0}
-        cartItems = order['get_cart_items']
-
-        
-    # if cartItems < 1:
-    #     messages.warning(request, 'Please add some products before checking out.')
-    #     return redirect('foodNet:cart')
+    data = cartData(request)
+    items = data['items']
+    order = data['order']
+    cartItems = data['cartItems']
+    
+    if(data['error']):
+        messages.info(request, 'Something wrong happen!! Please try again.')
+        return render(request, "foodnet/cart.html", {
+            'items': items,
+            'order': order,
+            'cartItems': cartItems,
+        })
     
     return render(request, "foodnet/checkout.html", {
         'items': items,
@@ -270,13 +253,17 @@ def view_product(request, product_id):
         order, created = Order.objects.get_or_create(client=client, complete=False)
         cartItems = order.get_cart_items
           
-        # return render(request, "foodnet/view_product.html",{
-        #     'product':product,
-        #     'cartItems': cartItems
-        # })
     else:
-        order = {'get_cart_total':0, 'get_cart_items':0}
-        cartItems = order['get_cart_items']
+        # fetching the cookies
+        cookieData = cookieCart(request)
+        cartItems = cookieData['cartItems']
+        
+        if(cookieData['error']):
+            messages.info(request, 'Something wrong happen!! Please try again.')
+            return render(request, "foodnet/cart.html", {
+                'product':product,
+                'cartItems': cartItems,
+            })
 
     return render(request, "foodnet/view_product.html",{
         'product':product,
@@ -506,6 +493,8 @@ def search(request):
                             'paginator': paginator
                         })
                     else:
+                        cookieData = cookieCart(request)
+                        cartItems = cookieData['cartItems']
                         products = Product.objects.filter(category=Category.objects.get(pk=int(search))).order_by('product_timestamp')
                         paginator = Paginator(products, 6)
                         page_number = request.GET.get("page", 1)
@@ -515,6 +504,7 @@ def search(request):
                         return render(request, "foodnet/market.html", {
                             'products': page_obj,
                             'categories': categories,
+                            'cartItems': cartItems,
                             'paginator': paginator 
                         })
             

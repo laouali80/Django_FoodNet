@@ -4,8 +4,8 @@ from . import views
 
 app_name = "foodNet"
 urlpatterns = [
-    # path("", views.home_page, name="home_page"),
-    path("home/", views.home_page, name="home_page"),
+    # path("", views.test, name="test"),
+    path("home", views.home_page, name="home_page"),
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.register, name="register"),
