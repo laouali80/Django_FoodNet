@@ -415,53 +415,68 @@ def updateItem(request):
     return JsonResponse('Item was added', safe=False)
 
 
-@login_required(login_url="/foodNet/login/")
+# @login_required(login_url="/foodNet/login/")
 def placeOrder(request):
     data = json.loads(request.body)
 
-    client = request.user
-    order, created = Order.objects.get_or_create(client=client, complete=False)
-    
-    shipping = data['shipping']
+    if request.user.is_authenticated:
+        client = request.user
+        order, created = Order.objects.get_or_create(client=client, complete=False)
+        
+        shipping = data['shipping']
 
-    # print(shipping["total"])
+        # print(shipping["total"])
 
-    transaction_id = datetime.datetime.now().timestamp()
+        transaction_id = datetime.datetime.now().timestamp()
 
-    if shipping['total'] == order.get_cart_total or shipping['total'] == (order.get_cart_total + 500):
-        if request.user.can_purchase(shipping['total']):
-            order.complete = True
-            order.transaction_id = transaction_id
+        if shipping['total'] == order.get_cart_total or shipping['total'] == (order.get_cart_total + 500):
+            if request.user.can_purchase(shipping['total']):
+                order.complete = True
+                order.transaction_id = transaction_id
 
-            items = order.order_items.all()
+                items = order.order_items.all()
 
-            for item in items:
-                credit = item.get_total
-                item.product.vendor.budget = item.product.vendor.budget + credit
-                item.product.vendor.save()
+                for item in items:
+                    credit = item.get_total
+                    item.product.vendor.budget = item.product.vendor.budget + credit
+                    item.product.vendor.save()
 
-            client.budget = client.budget - shipping['total']
-            client.save()
-            order.save()
+                client.budget = client.budget - shipping['total']
+                client.save()
+                order.save()
+            else:
+                return JsonResponse({
+                    'response': 'Fail'}, safe=False)
         else:
-            return JsonResponse({
-                'response': 'Fail'}, safe=False)
-    else:
-        return JsonResponse('Intruder', safe=False)
-    
-    ShippingAddress.objects.create(
-        client=client,
-        order=order,
-        name=shipping['name'],
-        phone_number=shipping['phone_number'],
-        address=shipping['address'],
-        state=shipping['state'],
-        city=shipping['city'],
-        zipcode=shipping['zipcode']
-    )
+            return JsonResponse('Intruder', safe=False)
+        
+        ShippingAddress.objects.create(
+            client=client,
+            order=order,
+            name=shipping['name'],
+            phone_number=shipping['phone_number'],
+            address=shipping['address'],
+            state=shipping['state'],
+            city=shipping['city'],
+            zipcode=shipping['zipcode']
+        )
 
-    return JsonResponse({
-        'response': 'Success'}, safe=False)
+        return JsonResponse({
+            'response': 'Success'}, safe=False)
+    
+    else:
+        print('user not logged in')
+
+        # client = request.user
+        # order, created = Order.objects.get_or_create(client=client, complete=False)
+        shipping = data['shipping']
+
+        # get all the AnonymousUser user items
+        cookieData = cookieCart(request)
+        items = cookieData['items']
+
+        return JsonResponse({
+            'response': 'Success'}, safe=False)
     
 
 def search(request):
